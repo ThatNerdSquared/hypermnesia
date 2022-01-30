@@ -23,14 +23,29 @@ parser.add_argument(
     action='store_true',
     help='Scrambles the order of a deck before practicing.',
 )
+parser.add_argument(
+    '-R',
+    '--reverse-deck',
+    action='store_true',
+    help='Reverses the sides of the cards during practice (answers become questions and vice versa).',
+)
+parser.add_argument(
+    '-p',
+    '--partial-reverse',
+    action='store_true',
+    help='Same as --reverse-deck, but cards are reversed or not reversed at random throughout the deck.',
+)
 
 args = parser.parse_args()
-if args.create_deck:
+if args.reverse_deck and args.partial_reverse:
+    print('--reverse-deck and --partial-reverse cannot be used together!')
+    exit()
+elif args.create_deck:
     reader = csv.reader(args.create_deck)
-    new_deck = []
+    new_deck = {}
 
     for row in reader:
-        new_deck.append({str(row[0]): row[1]})
+        new_deck[str(row[0])] = { 'answer': row[1] }
 
     path = args.create_deck.name[:-4] + ".hypermnesia.json"
     with open(path, "w", encoding="UTF-8") as f:
@@ -39,23 +54,40 @@ if args.create_deck:
     print(f'Deck "{path}" created!')
 elif args.run_deck:
     with open(args.run_deck.name, "r", encoding="UTF-8") as f:
-        deck = json.load(f)
+        deck_data = json.load(f)
 
+    if args.reverse_deck:
+        new_deck = {}
+        for k,v in deck_data.items():
+            new_deck[v['answer']] = { 'answer': k }
+        deck_data = new_deck
+        print(deck_data)
+    elif args.partial_reverse:
+        new_deck = {}
+        for k,v in deck_data.items():
+            if bool(random.getrandbits(1)):
+                new_deck[v['answer']] = { 'answer': k }
+            else:
+                new_deck[k] = v
+        deck_data = new_deck
+        print(deck_data)
+    deck = list(deck_data.keys())
     if args.scramble_deck: random.shuffle(deck)
 
     for idx, card in enumerate(deck):
         os.system('clear')
-        front = list(card.keys())[0]
+        print(card)
         user_input = ''
         try:
-            user_input = input(front + ': ')
+            user_input = input(card + ': ')
         except KeyboardInterrupt:
             print('\nSee you soon! 👋')
             exit()
-        if user_input == deck[idx][front]:
+        if user_input == deck_data[card]['answer']:
             input('☑️  Correct!')
         else:
-            input(f'❌ Incorrect. The correct answer is: "{deck[idx][front]}"')
+            answer = deck_data[card]['answer']
+            input(f'❌ Incorrect. The correct answer is: "{answer}"')
             insert_point = random.randint(idx+1, len(deck)+1)
             deck.insert(insert_point, card)
 
