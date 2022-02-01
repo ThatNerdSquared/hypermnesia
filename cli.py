@@ -38,7 +38,7 @@ parser.add_argument(
 
 args = parser.parse_args()
 if args.reverse_deck and args.partial_reverse:
-    print('--reverse-deck and --partial-reverse cannot be used together!')
+    print('--reverse-deck (-R) and --partial-reverse (-p) cannot be used together!')
     exit()
 elif args.create_deck:
     reader = csv.reader(args.create_deck)
@@ -61,7 +61,6 @@ elif args.run_deck:
         for k,v in deck_data.items():
             new_deck[v['answer']] = { 'answer': k }
         deck_data = new_deck
-        print(deck_data)
     elif args.partial_reverse:
         new_deck = {}
         for k,v in deck_data.items():
@@ -70,13 +69,11 @@ elif args.run_deck:
             else:
                 new_deck[k] = v
         deck_data = new_deck
-        print(deck_data)
     deck = list(deck_data.keys())
     if args.scramble_deck: random.shuffle(deck)
 
     for idx, card in enumerate(deck):
         os.system('clear')
-        print(card)
         user_input = ''
         try:
             user_input = input(card + ': ')

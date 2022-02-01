@@ -16,8 +16,10 @@ python3 cli.py -h
 - Scramble the deck in a practice session using the `-s` flag.
 
 ## Future Plans
+- [x] Allow partial/full reversal of cards (some/all answers become questions)
 - [ ] Add information about success/failure rate per card into deck file
 - [ ] Add smarter reshuffling based on success/failure rate
+- [ ] PyInstaller packages and ability to install from `brew`, etc
 - [ ] Add deck stats
 - [ ] Add basic GUI
 - [ ] Add deck stats graphs in GUI
